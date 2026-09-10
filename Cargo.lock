@@ -350,6 +350,7 @@ dependencies = [
  "svg",
  "textwrap",
  "toml",
+ "unicode-width",
  "yansi",
 ]
 

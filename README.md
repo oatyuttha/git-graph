@@ -20,6 +20,7 @@ If you want an **interactive Git terminal application**, see [**git-igitt**](htt
 ## Features
 
 * View structured graphs directly in the terminal
+* Scroll and search large graphs with vim-style keys (option `--interactive`)
 * Pre-defined and custom branching models and coloring
 * Different styles, including ASCII-only (i.e. no "special characters")
 * Custom commit formatting, like with `git log --format="..."`

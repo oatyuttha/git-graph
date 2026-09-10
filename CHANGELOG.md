@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased] - Next Date
 
+### Added
+
+- Option `--interactive`/`-i` to browse the graph in a scrollable view,
+  with vim-style navigation keys (hjkl, gg/G, Ctrl+D/U, Ctrl+F/B).
+- Search for commits in the interactive view with `/`, `?`, `n` and `N`.
+
 
 ## [0.8.0] - 2026-08-06
 

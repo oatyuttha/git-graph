@@ -63,6 +63,20 @@ git-graph --style round
 
 Style `ascii` can be used for devices and media that do not support Unicode/UTF-8 characters. 
 
+**Interactive viewing**
+
+For repositories with a history that does not fit on the screen, option `--interactive` or `-i` shows the graph in a scrollable full-screen view:
+
+```
+git-graph --interactive
+```
+
+Navigation follows vim: `h`, `j`, `k` and `l` scroll by one line or column (arrow keys work as well), `H` and `L` scroll horizontally by half a screen, `gg` and `G` jump to the first and last commit, `Ctrl+D`/`Ctrl+U` scroll half a page and `Ctrl+F`/`Ctrl+B` (or `Space`/`PageUp`) a full page. `0` and `$` jump to the start and end of the lines. Leave the viewer with `q` or `Esc`.
+
+To **search for a commit**, type `/` followed by the text to search for, and confirm with `Enter`. Any part of a line matches, so this finds commits by summary, author, date, commit hash, branch or tag name, depending on what is shown by the current `--format`. All matches on the screen are highlighted, and `n` and `N` jump to the next and previous one. `?` searches backwards, i.e. towards newer commits. As in vim, a lower case pattern matches any case, while a pattern with upper case characters is matched case-sensitively. Searching for nothing (`/` and `Enter`) removes the highlighting.
+
+The option is ignored when the output is not a terminal, e.g. when piping into a file.
+
 **Formatting**
 
 Git-graph supports predefined as well as custom commit formatting through option `--format`. Available presets follow Git: `oneline` (the default), `short`, `medium` and `full`. For details and custom formatting, see section [Formatting](#formatting).
@@ -91,11 +105,17 @@ USAGE:
 FLAGS:
     -d, --debug       Additional debug output and graphics.
     -h, --help        Prints help information
+    -i, --interactive Browse the graph interactively, scrolling and searching
+                      with vim keys.
+                        h/j/k/l: left/down/up/right, gg/G: first/last commit,
+                        Ctrl+D/Ctrl+U: half page, Ctrl+F/Ctrl+B: page,
+                        /<text>: search, ?<text>: search backwards,
+                        n/N: next/previous match, q: quit.
+                      Ignored when the output is not a terminal.
     -l, --local       Show only local branches, no remotes.
         --no-color    Print without colors. Missing color support should be detected
                       automatically (e.g. when piping to a file).
                       Overrides option '--color'
-        --no-pager    Use no pager (print everything at once without prompt).
     -S, --sparse      Print a less compact graph: merge lines point to target lines
                       rather than merge commits.
         --svg         Render graph as SVG instead of text-based.

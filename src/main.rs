@@ -9,6 +9,7 @@
 //mod config;
 mod print;
 
+use crate::print::interactive::print_interactive;
 use crate::print::svg::print_svg;
 use clap::ArgMatches;
 use clap::{crate_version, Arg, Command};
@@ -54,6 +55,7 @@ fn from_args() -> Result<(), String> {
         ses.repository.unwrap(),
         Rc::new(ses.settings.unwrap()),
         ses.svg,
+        ses.interactive,
         ses.commit_limit,
         ses.refspecs,
     )
@@ -101,6 +103,22 @@ fn match_args() -> ArgMatches {
             Arg::new("svg")
                 .long("svg")
                 .help("Render graph as SVG instead of text-based.")
+                .required(false)
+                .num_args(0),
+        )
+        .arg(
+            Arg::new("interactive")
+                .long("interactive")
+                .short('i')
+                .help(
+                    "Browse the graph interactively, scrolling and searching\n\
+                     with vim keys.\n  \
+                       h/j/k/l: left/down/up/right, gg/G: first/last commit,\n  \
+                       Ctrl+D/Ctrl+U: half page, Ctrl+F/Ctrl+B: page,\n  \
+                       /<text>: search, ?<text>: search backwards,\n  \
+                       n/N: next/previous match, q: quit.\n\
+                     Ignored when the output is not a terminal.",
+                )
                 .required(false)
                 .num_args(0),
         )
@@ -169,6 +187,7 @@ fn configure_session(ses: &mut Session, matches: &ArgMatches) -> Result<bool, St
     let reverse_commit_order = matches.get_flag("reverse");
 
     ses.svg = matches.get_flag("svg");
+    ses.interactive = matches.get_flag("interactive");
     let compact = !matches.get_flag("sparse");
     let debug = matches.get_flag("debug");
     let style = matches
@@ -223,6 +242,7 @@ struct Session {
     // Other fields
     pub repository: Option<Repository>,
     pub svg: bool,
+    pub interactive: bool,
     pub commit_limit: Option<usize>,
     pub refspecs: Vec<String>,
 }
@@ -239,6 +259,7 @@ impl Session {
             // Other fields
             repository: None,
             svg: false,
+            interactive: false,
             commit_limit: None,
             refspecs: Vec::new(),
         }
@@ -618,6 +639,7 @@ fn run(
     repository: Repository,
     settings: Rc<Settings>,
     svg: bool,
+    interactive: bool,
     max_commits: Option<usize>,
     refspecs: Vec<String>,
 ) -> Result<(), String> {
@@ -666,7 +688,12 @@ fn run(
         println!("{}", print_svg(&graph, settings)?);
     } else {
         let (g_lines, t_lines, _indices) = print_unicode(&graph, settings)?;
-        print_unpaged(&g_lines, &t_lines);
+        // Interactive viewing only makes sense in a terminal, not in a pipe
+        if interactive && atty::is(atty::Stream::Stdout) {
+            print_interactive(&g_lines, &t_lines).map_err(|err| err.to_string())?;
+        } else {
+            print_unpaged(&g_lines, &t_lines);
+        }
     };
 
     let duration_print = now.elapsed().as_micros();
